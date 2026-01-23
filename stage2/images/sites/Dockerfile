@@ -2,6 +2,8 @@
 # Prepare caddy Environment
 FROM localhost:8080/public_mirror/caddy:builder AS caddy-build-env
 
+ENV GOPROXY=https://goproxy.cn,direct
+
 RUN xcaddy build \
     --with github.com/ueffel/caddy-brotli \
     --with github.com/caddyserver/transform-encoder
