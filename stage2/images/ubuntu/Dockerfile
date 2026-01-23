@@ -4,8 +4,8 @@ COPY source.list /suggested.sources.list
 
 RUN apt update && apt install -y curl
 
-RUN if curl -f https://ftp.uni-stuttgart.de; then \
-        echo "Using ftp.uni-stuttgart.de" && \
+RUN if curl -f http://mirrors.zju.edu.cn/ubuntu/; then \
+        echo "Using mirrors.zju.edu.cn" && \
         cp /suggested.sources.list /etc/apt/sources.list && \
         apt update; \
     fi
