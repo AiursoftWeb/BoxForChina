@@ -10,7 +10,6 @@
 		}
 		level debug
 	}
-
 	servers :443 {
 		listener_wrappers {
 			http_redirect
