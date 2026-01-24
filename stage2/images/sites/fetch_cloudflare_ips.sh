@@ -20,26 +20,7 @@ echo "Generating cloudflare_ips.conf..."
 cat > ./cloudflare_ips.conf << EOF
 # Auto-generated Cloudflare Configuration
 # Generated at: $(date -u +"%Y-%m-%d %H:%M:%S UTC")
-
-# 1. Trust proxy configuration
-(cloudflare_trust) {
-    trusted_proxies static $ALL_RANGES private_ranges
-}
-
-# 2. IP-based Access Control
-# Logic: If Request is NOT from Cloudflare AND NOT from Private Network -> Abort
 (limit_to_cloudflare) {
-    @denied {
-        # Condition 1: IP is NOT in Cloudflare ranges
-        not remote_ip $ALL_RANGES
-        
-        # Condition 2: IP is NOT in Docker/Local private ranges
-        # (Caddy joins these lines with AND logic)
-        not remote_ip private_ranges
-    }
-    
-    # Execute abort if the request matches the @denied criteria
-    abort @denied
 }
 EOF
 
