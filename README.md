@@ -2,6 +2,8 @@
 
 Docker Swarm cluster management tool for users in China, optimized for better performance with local registries and mirrors.
 
+No Cloudflare, No CDN, No FRP. Just a pure Docker with Caddy reverse proxy.
+
 ## Speed up docker
 
 First, install Xray or other proxy tools that support HTTP proxy on your AnduinOS host.
@@ -30,4 +32,15 @@ To speed up Go module downloads in China, set the `GOPROXY` environment variable
 
 ```Dockerfile
 ENV GOPROXY=https://goproxy.cn,direct
+```
+
+## Patch Caddy IP detection
+
+In some cases, Caddy may not correctly detect the client's IP address when behind certain proxies. To fix this, disable Docker's userland proxy by creating or modifying the Docker daemon configuration file:
+
+```bash
+sudo cat > /etc/docker/daemon.json <<EOF
+{
+  "userland-proxy": false
+}
 ```
