@@ -27,7 +27,6 @@ services:
       - GF_PLUGINS_PLUGIN_ADMIN_ENABLED=true
       - GF_INSTALL_PLUGINS=grafana-clickhouse-datasource
     networks:
-      - internal
       - proxy_app
     stop_grace_period: 60s
     deploy:
@@ -40,8 +39,6 @@ services:
         delay: 60s
 
 networks:
-  internal:
-    driver: overlay
   proxy_app:
     external: true
 
