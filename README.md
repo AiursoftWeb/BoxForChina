@@ -1,46 +1,33 @@
-# Box For China
+# BoxForChina 🇨🇳
 
-Docker Swarm cluster management tool for users in China, optimized for better performance with local registries and mirrors.
+**Role:** Domestic Acceleration & Traffic Entry
 
-No Cloudflare, No CDN, No FRP. Just a pure Docker with Caddy reverse proxy.
+This repository contains the configuration and deployment logic for the **China Region** nodes of the Aiursoft Hybrid Cloud.
 
-## Speed up docker
+## 🎯 Strategic Objective
+To provide low-latency access to services for users within Mainland China, bypassing network congestion and ensuring stable connectivity to the core infrastructure.
 
-First, install Xray or other proxy tools that support HTTP proxy on your AnduinOS host.
+## 🏗 Architecture Specifics
+*   **Ingress:** Optimized for domestic ISPs (China Telecom/Unicom/Mobile).
+*   **Routing:** Uses local DNS strategies to route requests:
+    *   **Static Assets:** Redirected to local caches or CDNs.
+    *   **Dynamic Traffic:** Tunneled to `BoxForProart` via encrypted links.
+*   **Restrictions:** Does *not* host heavy storage or heavy compute to minimize VPS costs and legal risks.
 
-Then, create or modify the docker systemd service override file to set the HTTP and HTTPS proxy environment variables.
+## 📦 Stacks Included
+*   **Stage 2 (Network):** 
+    *   `baseline`: Basic network connectivity checks.
+    *   `build_proxy`: Accelerates build processes for local runners.
+    *   `incoming`: The main Caddy reverse proxy entry point.
+*   **Stage 4 (Apps):**
+    *   Proxies for `ClickHouse`, `Grafana`, `Tracer` (pointing to Core).
+    *   Lightweight edge services.
 
-```bash
-sudo cat > /etc/systemd/system/docker.service.d/http-proxy.conf <<EOF
-[Service]
-Environment="HTTP_PROXY=http://127.0.0.1:10809"
-Environment="HTTPS_PROXY=http://127.0.0.1:10809"
-Environment="NO_PROXY=localhost,127.0.0.1,registry.cn-hangzhou.aliyuncs.com"
-EOF
-```
-
-After that, reload the systemd configuration and restart the docker service:
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart docker
-```
-
-## Speed up Go
-
-To speed up Go module downloads in China, set the `GOPROXY` environment variable to use a local Go proxy.
-
-```Dockerfile
-ENV GOPROXY=https://goproxy.cn,direct
-```
-
-## Patch Caddy IP detection
-
-In some cases, Caddy may not correctly detect the client's IP address when behind certain proxies. To fix this, disable Docker's userland proxy by creating or modifying the Docker daemon configuration file:
+## 🚀 Deployment
 
 ```bash
-sudo cat > /etc/docker/daemon.json <<EOF
-{
-  "userland-proxy": false
-}
+# On a fresh Tencent Cloud / Aliyun / Ningbo Node:
+git clone https://gitlab.aiursoft.cn/aiursoft/bash-app.git
+cd bash-app/Boxes/BoxForChina
+sudo bash deploy.sh
 ```
