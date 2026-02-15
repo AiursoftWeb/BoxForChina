@@ -570,6 +570,7 @@ sleep 3
 rm -rf ./stage2/images/sites/discovered
 mkdir -p ./stage2/images/sites/discovered && \
     cp ./stage2/stacks/**/*.conf ./stage2/images/sites/discovered && \
+    cp ./stage3/stacks/**/*.conf ./stage2/images/sites/discovered && \
     cp ./stage4/stacks/**/*.conf ./stage2/images/sites/discovered
 
 print_ok "Building local ubuntu..."
