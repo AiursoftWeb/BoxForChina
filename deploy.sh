@@ -604,6 +604,31 @@ print_warn "   Ending stage 2: Basic web infrastructure is ready."
 print_warn "=============================================================================="
 fi
 
+if [ "$TARGET_STAGE" -le 3 ]; then
+print_warn "=============================================================================="
+print_warn "   Starting stage 3: Mission is to build and start registries"
+print_warn "=============================================================================="
+sleep 3
+
+print_ok "Building local zot..."
+sudo docker build ./stage3/images/zot -t localhost:8080/box_starting/local_zot:latest
+sudo docker push localhost:8080/box_starting/local_zot:latest
+
+print_ok "Starting Zot, Puller, ppamirror..."
+deploy stage3/stacks/zot/docker-compose.yml zot
+
+print_ok "Making sure the zot is ready..."
+sleep 5
+while [ "$(curl -s -o /dev/null -w "%{http_code}" https://hub.aiursoft.cn)" != "200" ]; do
+    print_warn "Waiting for registry (https://hub.aiursoft.cn) to start... ETA: 25s"
+    sleep 1
+done
+
+print_warn "=============================================================================="
+print_warn "   Ending stage 3: Registries are ready."
+print_warn "=============================================================================="
+fi
+
 if [ "$TARGET_STAGE" -le 4 ]; then
 print_warn "=============================================================================="
 print_warn "   Starting stage 4: Mission is to deploy business stacks"
