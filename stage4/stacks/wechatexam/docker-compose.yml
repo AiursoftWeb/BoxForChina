@@ -6,6 +6,7 @@ services:
       - db
     image: hub.aiursoft.cn/aiursoft/wechatexam:latest
     volumes:
+      - wechatexam-private-key:/data/private-key
       - wechatexam-aspnet:/data/.aspnet/
       - wechatexam-files:/data/files
     environment:
@@ -18,6 +19,12 @@ services:
       - AppSettings__OIDC__ClientSecret={{WCE_CLIENT_SECRET}}
       - AppSettings__Wechat__AppId={{WCEXAM_APP_ID}}
       - AppSettings__Wechat__AppSecret={{WCEXAM_APP_SECRET}}
+      - AppSettings__Wechat__Payment__Enabled=true
+      - AppSettings__Wechat__Payment__MchId={{WCEXAM_MCH_ID}}
+      - AppSettings__Wechat__Payment__CertificateSerialNumber={{WCEXAM_CERT_SERIAL}}
+      - AppSettings__Wechat__Payment__V3SecretKey={{WCEXAM_V3_SECRET_KEY}}
+      - AppSettings__Wechat__Payment__PrivateKeyFilePath=/data/private-key/apiclient_key.pem
+      - AppSettings__Wechat__Payment__PaymentNotifyUrl=https://wechatexam.aiursoft.cn/api/payment/notify
       - OpenAI__CompletionApiUrl=https://ollama.aiursoft.com/api/chat
       - OpenAI__Model=qwen3.5:27b-q8_0
       - OpenAI__Token={{OLLAMA_GATEWAY_API_KEY}}
@@ -78,6 +85,12 @@ volumes:
       type: none
       o: bind
       device: /swarm-vol/wechatexam-data/mysql
+  wechatexam-private-key:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /swarm-vol/wechatexam-data/private-key
 
 networks:
   proxy_app:
