@@ -24,6 +24,8 @@ services:
       - AppSettings__Wechat__Payment__CertificateSerialNumber={{WCEXAM_CERT_SERIAL}}
       - AppSettings__Wechat__Payment__V3SecretKey={{WCEXAM_V3_SECRET_KEY}}
       - AppSettings__Wechat__Payment__PrivateKeyFilePath=/data/private-key/apiclient_key.pem
+      - AppSettings__Wechat__Payment__PlatformPublicKeyId={{WCEXAM_PLATFORM_PUB_KEY_ID}}
+      - AppSettings__Wechat__Payment__PlatformPublicKeyFilePath=/data/private-key/pub_key.pem
       - AppSettings__Wechat__Payment__PaymentNotifyUrl=https://wechatexam.aiursoft.cn/api/payment/notify
       - OpenAI__CompletionApiUrl=https://ollama.aiursoft.com/api/chat
       - OpenAI__Model=qwen3.5:27b-q8_0
