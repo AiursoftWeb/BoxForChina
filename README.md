@@ -23,14 +23,6 @@ To provide low-latency access to services for users within Mainland China, bypas
     *   Proxies for `ClickHouse`, `Grafana`, `Tracer` (pointing to Core).
     *   Lightweight edge services.
 
-## 🌐 IPv6 Support
-
-This project natively supports **Dual-Stack (IPv4 & IPv6)** connectivity. 
-
-*   **Ingress:** The Caddy gateway (`incoming` stack) is configured in `mode: host`, allowing it to bind directly to the host's global unicast IPv6 addresses.
-*   **Internal:** The `deploy.sh` script automatically configures a dual-stack Docker Swarm network.
-*   **Verification:** Ensure your host has a valid IPv6 address and that your cloud provider's firewall allows incoming traffic on ports 80 and 443 via IPv6.
-
 ## 🚀 Deployment
 
 ```bash

@@ -314,22 +314,13 @@ function create_secret() {
 function create_network() {
     network_name=$1
     subnet=$2
-    
-    # Generate IPv6 subnet from IPv4 subnet
-    # Example: 10.233.0.0/16 -> fd00:233::/64
-    # The second octet of the IPv4 subnet is used to distinguish different networks
-    third_octet=$(echo $subnet | cut -d. -f2)
-    ipv6_subnet="fd00:${third_octet}::/64"
-
     known_networks=$(sudo docker network ls --format '{{.Name}}')
     if ! echo "$known_networks" | grep -Fxq "$network_name"; then
-        print_warn "Creating dual-stack network $network_name with subnets $subnet and $ipv6_subnet..."
+        print_warn "Creating network $network_name with subnet $subnet and MTU 1400..."
         networkId=$(sudo docker network create \
             --driver overlay \
             --attachable \
-            --ipv6 \
             --subnet $subnet \
-            --subnet $ipv6_subnet \
             --opt com.docker.network.driver.mtu=1400 \
             --scope swarm $network_name)
         print_ok "Network $network_name created with id $networkId"
@@ -458,9 +449,6 @@ if [ -f /usr/bin/nvidia-smi ]; then
   sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "mtu": 1400,
-  "ipv6": true,
-  "fixed-cidr-v6": "fd00:ffff::/64",
-  "ip6tables": true,
   "data-root": "/swarm-vol/docker-data",
   "insecure-registries": [
     "localhost:8080"
@@ -499,9 +487,6 @@ else
   sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "mtu": 1400,
-  "ipv6": true,
-  "fixed-cidr-v6": "fd00:ffff::/64",
-  "ip6tables": true,
   "data-root": "/swarm-vol/docker-data",
   "insecure-registries": [
     "localhost:8080"
