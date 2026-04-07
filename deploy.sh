@@ -449,9 +449,6 @@ if [ -f /usr/bin/nvidia-smi ]; then
   sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "mtu": 1400,
-  "ipv6": true,
-  "fixed-cidr-v6": "fd00:ffff::/64",
-  "ip6tables": true,
   "data-root": "/swarm-vol/docker-data",
   "insecure-registries": [
     "localhost:8080"
@@ -490,9 +487,6 @@ else
   sudo tee /etc/docker/daemon.json > /dev/null <<EOF
 {
   "mtu": 1400,
-  "ipv6": true,
-  "fixed-cidr-v6": "fd00:ffff::/64",
-  "ip6tables": true,
   "data-root": "/swarm-vol/docker-data",
   "insecure-registries": [
     "localhost:8080"
