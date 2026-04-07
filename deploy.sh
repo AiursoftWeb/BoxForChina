@@ -110,7 +110,7 @@ function ensure_docker_ready() {
 }
 
 function ensure_packages_needed_ready() {
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y wsdd valgrind curl wget apt-transport-https ca-certificates docker-compose-v2 docker.io qemu-user-static docker-buildx
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y wsdd valgrind curl wget apt-transport-https ca-certificates docker-compose-v2 docker.io qemu-user-static docker-buildx socat
 
     # Install yq. (Run install_yq only if the /usr/bin/yq does not exist.)
     [ -f /usr/bin/yq ] || install_yq
@@ -169,6 +169,17 @@ better_performance() {
     print_ok "Setting up swap file equal to physical RAM size..."
     curl -s https://gitlab.aiursoft.com/anduin/init-server/-/raw/master/autoswap.sh?ref_type=heads | sudo bash
 }
+
+function setup_ipv6_persistence() {
+    print_info "Configuring Persistent IPv6 Forwarding (Idempotent)..."
+    
+    # 1. Sysctl Persistence
+    echo "net.ipv6.conf.all.forwarding=1" | sudo tee /etc/sysctl.d/60-ipv6-forwarding.conf > /dev/null
+    sudo sysctl -p /etc/sysctl.d/60-ipv6-forwarding.conf > /dev/null
+    
+    print_ok "IPv6 Forwarding is now persistent."
+}
+
 
 function setup_docker_auto_clean() {
     print_info "Configuring Docker Disk Auto-Cleanup (Idempotent)..."
@@ -451,6 +462,7 @@ if [ -f /usr/bin/nvidia-smi ]; then
   "mtu": 1400,
   "ipv6": true,
   "fixed-cidr-v6": "fd00:ffff::/64",
+  "experimental": true,
   "ip6tables": true,
   "data-root": "/swarm-vol/docker-data",
   "insecure-registries": [
@@ -492,6 +504,7 @@ else
   "mtu": 1400,
   "ipv6": true,
   "fixed-cidr-v6": "fd00:ffff::/64",
+  "experimental": true,
   "ip6tables": true,
   "data-root": "/swarm-vol/docker-data",
   "insecure-registries": [
@@ -596,6 +609,11 @@ judge "Generate docker-compose.yml"
 
 print_ok "Starting incoming proxy..."
 deploy stage2/stacks/incoming/docker-compose.yml incoming # 8080
+
+# Ensure IPv6 real IP transparency is persistent
+if [ -f /proc/net/if_inet6 ]; then
+    setup_ipv6_persistence
+fi
 
 print_ok "Make sure the caddy is ready..."
 sleep 5 # Could not trust result in the first few seconds, because the old registry might still be running
