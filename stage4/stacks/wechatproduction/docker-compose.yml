@@ -6,9 +6,9 @@ services:
       - db
     image: hub.aiursoft.cn/aiursoft/wechatexam:latest
     volumes:
-      - wechatexam-private-key:/data/private-key
-      - wechatexam-aspnet:/data/.aspnet/
-      - wechatexam-files:/data/files
+      - wechatprod-private-key:/data/private-key
+      - wechatprod-aspnet:/data/.aspnet/
+      - wechatprod-files:/data/files
     environment:
       - ConnectionStrings__DefaultConnection=Server=db;Database=mth;Uid=mth;Pwd=<mth_password>;
       - ConnectionStrings__DbType=MySql
@@ -52,7 +52,7 @@ services:
   db:
     image: hub.aiursoft.cn/mysql
     volumes:
-      - wechatexam-db:/var/lib/mysql
+      - wechatprod-db:/var/lib/mysql
     environment:
       - MYSQL_RANDOM_ROOT_PASSWORD=true
       - MYSQL_DATABASE=mth
