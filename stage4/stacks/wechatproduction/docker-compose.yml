@@ -14,7 +14,7 @@ services:
       - ConnectionStrings__DbType=MySql
       - Storage__Path=/data/files
       - AppSettings__AuthProvider=OIDC
-      - AppSettings__OIDC__Authority=https://auth.aiursoft.com/application/o/we-chat-exam
+      - AppSettings__OIDC__Authority=https://auth.aiursoft.com/application/o/yuefuxuetang
       - AppSettings__OIDC__ClientId={{WCE_CLIENT_ID_PROD}}
       - AppSettings__OIDC__ClientSecret={{WCE_CLIENT_SECRET_PROD}}
       - AppSettings__Wechat__AppId={{WCEXAM_APP_ID_PROD}}
