@@ -8,10 +8,17 @@ services:
     volumes:
       - richemployeecenter-aspnet:/data/.aspnet/
       - richemployeecenter-files:/data/files
+      - richemployeecenter-context:/export
     environment:
       - ConnectionStrings__DefaultConnection=Server=db;Database=mth;Uid=mth;Pwd=<mth_password>;
       - ConnectionStrings__DbType=MySql
       - Storage__Path=/data/files
+      - AppSettings__AuthProvider=OIDC
+      - AppSettings__OIDC__Authority=https://auth.aiursoft.com/application/o/rich-employeecenter
+      - AppSettings__OIDC__ClientId={{RICHEMPLOYEE_CLIENT_ID}}
+      - AppSettings__OIDC__ClientSecret={{RICHEMPLOYEE_CLIENT_SECRET}}
+      - AppSettings__ExportPath=/export
+      - AppSettings__Agent__Endpoint=http://agent:8000/ask
       - Logging__Clickhouse__Enabled=true
       - Logging__Clickhouse__ConnectionString=Host=clickhouse;User=default;Password=123456;Database=AspNetCoreLogs
       - Logging__Clickhouse__TableName=EmployeeCenterLogs
@@ -19,7 +26,8 @@ services:
       - proxy_app
       - internal
       - clickhouse_net
-    stop_grace_period: 60s
+      - agent
+    stop_grace_period: 20s
     deploy:
       labels:
         shepherd.autoupdate: "true"
@@ -28,11 +36,31 @@ services:
           cpus: "2.0"
           memory: 2G
       update_config:
-        order: stop-first
-        delay: 60s
+        order: start-first
+        delay: 5s
+
+  agent:
+    image: hub.aiursoft.cn/aiursoft/folderagent:latest
+    volumes:
+      - richemployeecenter-context:/import:ro
+    environment:
+      - QWEN_API_KEY={{RICHEMPLOYEE_AGENT_KEY}}
+    networks:
+      - agent
+    stop_grace_period: 20s
+    deploy:
+      labels:
+        shepherd.autoupdate: "true"
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 2G
+      update_config:
+        order: start-first
+        delay: 5s
 
   db:
-    image: hub.aiursoft.cn/mysql
+    image: hub.aiursoft.cn/mysql:latest
     volumes:
       - richemployeecenter-db:/var/lib/mysql
     environment:
@@ -67,6 +95,12 @@ volumes:
       type: none
       o: bind
       device: /swarm-vol/richemployeecenter-data/aspnet
+  richemployeecenter-context:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /swarm-vol/richemployeecenter-data/context
   richemployeecenter-db:
     driver: local
     driver_opts:
@@ -80,4 +114,6 @@ networks:
   clickhouse_net:
     external: true
   internal:
+    driver: overlay
+  agent:
     driver: overlay
