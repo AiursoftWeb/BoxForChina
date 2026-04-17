@@ -1,115 +1,22 @@
-version: "3.9"
+version: '3.9'
 
 services:
-  app:
-    depends_on:
-      - db
+  corphome:
     image: hub.aiursoft.cn/aiursoft/corp-home:latest
-    volumes:
-      - corphome-aspnet:/data/.aspnet/
-      - corphome-files:/data/files
-      - corphome-context:/export
-    environment:
-      - ConnectionStrings__DefaultConnection=Server=db;Database=corphome;Uid=corphome;Pwd=<corphome_password>;
-      - ConnectionStrings__DbType=MySql
-      - Storage__Path=/data/files
-      - AppSettings__ExportPath=/export
-      - AppSettings__Agent__Endpoint=http://agent:8000/ask
-      - Logging__Clickhouse__Enabled=true
-      - Logging__Clickhouse__ConnectionString=Host=clickhouse;User=default;Password=123456;Database=AspNetCoreLogs
-      - Logging__Clickhouse__TableName=CorpHomeLogs
     networks:
       - proxy_app
-      - internal
-      - clickhouse_net
-      - agent
     stop_grace_period: 20s
-    deploy:
-      labels:
-        shepherd.autoupdate: "true"
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
-      update_config:
-        order: start-first
-        delay: 5s
-
-  agent:
-    image: hub.aiursoft.cn/aiursoft/folderagent:latest
-    volumes:
-      - corphome-context:/import:ro
-    environment:
-      - QWEN_API_KEY={{CORPHOME_AGENT_KEY}}
-    networks:
-      - agent
-    stop_grace_period: 20s
-    deploy:
-      labels:
-        shepherd.autoupdate: "true"
-      resources:
-        limits:
-          cpus: "2.0"
-          memory: 2G
-      update_config:
-        order: start-first
-        delay: 5s
-
-  db:
-    image: hub.aiursoft.cn/mysql:latest
-    volumes:
-      - corphome-db:/var/lib/mysql
-    environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=true
-      - MYSQL_DATABASE=corphome
-      - MYSQL_USER=corphome
-      - MYSQL_PASSWORD=<corphome_password>
-    networks:
-      - internal
-    stop_grace_period: 60s
     deploy:
       labels:
         shepherd.autoupdate: "true"
       resources:
         limits:
           cpus: '2.0'
-          memory: 4G
+          memory: 2G
       update_config:
-        order: stop-first
-        delay: 60s
-
-volumes:
-  corphome-files:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /swarm-vol/corphome-data/files
-  corphome-aspnet:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /swarm-vol/corphome-data/aspnet
-  corphome-context:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /swarm-vol/corphome-data/context
-  corphome-db:
-    driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: /swarm-vol/corphome-data/mysql
+        order: start-first
+        delay: 5s
 
 networks:
   proxy_app:
     external: true
-  clickhouse_net:
-    external: true
-  internal:
-    driver: overlay
-  agent:
-    driver: overlay
