@@ -50,7 +50,7 @@ services:
         delay: 5s
 
   db:
-    image: hub.aiursoft.cn/mysql
+    image: hub.aiursoft.cn/mysql:9.7.0
     volumes:
       - wechatprod-db:/var/lib/mysql
     environment:

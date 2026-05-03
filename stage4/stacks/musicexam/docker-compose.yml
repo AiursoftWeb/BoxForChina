@@ -35,7 +35,7 @@ services:
         delay: 5s
 
   db:
-    image: hub.aiursoft.cn/mysql
+    image: hub.aiursoft.cn/mysql:9.7.0
     volumes:
       - musicexam-db:/var/lib/mysql
     environment:

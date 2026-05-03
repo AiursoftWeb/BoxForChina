@@ -63,7 +63,7 @@ services:
         delay: 5s
 
   db:
-    image: hub.aiursoft.cn/mysql:latest
+    image: hub.aiursoft.cn/mysql:9.7.0
     volumes:
       - richemployeecenter-db:/var/lib/mysql
     environment:
