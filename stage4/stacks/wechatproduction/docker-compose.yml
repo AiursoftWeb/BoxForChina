@@ -51,6 +51,7 @@ services:
 
   db:
     image: hub.aiursoft.cn/mysql:9.7.0
+    command: --skip-log-bin
     volumes:
       - wechatprod-db:/var/lib/mysql
     environment:
