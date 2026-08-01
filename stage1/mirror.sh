@@ -19,3 +19,5 @@ mirror_image "caddy:builder"
 echo "Mirroring Caddy latest..."
 mirror_image "caddy:latest"
 
+echo "Mirroring Python 3.11..."
+mirror_image "python:3.11"

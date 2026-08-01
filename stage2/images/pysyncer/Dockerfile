@@ -1,7 +1,7 @@
 # ===========================
 # Build/Runtime in one stage
 # ===========================
-FROM localhost:8080/box_starting/local_ubuntu 
+FROM localhost:8080/public_mirror/python:3.11
 
 ENV PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1 \
@@ -9,11 +9,10 @@ ENV PYTHONUNBUFFERED=1 \
 
 # 必要包：clickhouse-connect 做写入；tzdata 提供时区
 RUN apt-get update && apt-get install -y --no-install-recommends \
-        curl ca-certificates tzdata python3 python-is-python3 python3-pip \
-        build-essential python3-dev \
+        curl ca-certificates tzdata build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install clickhouse-connect==0.8.18
+RUN pip install --no-cache-dir clickhouse-connect==0.8.18
 
 WORKDIR /app
 COPY main.py /app/main.py
