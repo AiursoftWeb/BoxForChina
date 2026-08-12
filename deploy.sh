@@ -96,13 +96,13 @@ function get_env_value() {
     local line
 
     if [ -z "$ENV_FILE" ]; then
-        print_error "No environment file found. '$key' is required."
+        print_error "No environment file found. '$key' is required." >&2
         exit 1
     fi
 
     line=$(grep -m1 -E "^${key}=" "$ENV_FILE" || true)
     if [ -z "$line" ] || [ -z "${line#*=}" ]; then
-        print_error "'$key' is missing or empty in $ENV_FILE."
+        print_error "'$key' is missing or empty in $ENV_FILE." >&2
         exit 1
     fi
 
@@ -113,8 +113,8 @@ function login_to_hub() {
     local hub_username
     local hub_password
 
-    hub_username=$(get_env_value "HUB_USERNAME")
-    hub_password=$(get_env_value "HUB_PASSWORD")
+    hub_username=$(get_env_value "DOCKERHUB_USERNAME")
+    hub_password=$(get_env_value "DOCKERHUB_PASSWORD")
 
     print_ok "Logging in to hub.aiursoft.cn..."
     if ! printf '%s' "$hub_password" | sudo docker login hub.aiursoft.cn --username "$hub_username" --password-stdin; then
