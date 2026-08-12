@@ -9,7 +9,7 @@ services:
       TZ: UTC
       FILTER_SERVICES: label=shepherd.autoupdate=true
       WITH_REGISTRY_AUTH: "true"
-      REGISTRY_HOST: hub.aiursoft.cn
+      REGISTRY_HOST: "{{REGISTRY_HOST}}"
       REGISTRY_USER: "{{DOCKERHUB_USERNAME}}"
       REGISTRY_PASSWORD: "{{DOCKERHUB_PASSWORD}}"
     networks:

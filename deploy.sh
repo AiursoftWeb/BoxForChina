@@ -110,22 +110,24 @@ function get_env_value() {
 }
 
 function login_to_hub() {
+    local registry_host=$1
+    local verification_image=$2
     local hub_username
     local hub_password
 
     hub_username=$(get_env_value "DOCKERHUB_USERNAME")
     hub_password=$(get_env_value "DOCKERHUB_PASSWORD")
 
-    print_ok "Logging in to hub.aiursoft.cn..."
-    if ! printf '%s' "$hub_password" | sudo docker login hub.aiursoft.cn --username "$hub_username" --password-stdin; then
-        print_error "Failed to log in to hub.aiursoft.cn."
+    print_ok "Logging in to $registry_host..."
+    if ! printf '%s' "$hub_password" | sudo docker login "$registry_host" --username "$hub_username" --password-stdin; then
+        print_error "Failed to log in to $registry_host."
         exit 1
     fi
     unset hub_password
 
-    print_ok "Verifying access to hub.aiursoft.cn..."
-    if ! sudo docker manifest inspect hub.aiursoft.cn/mysql:9.7.0 >/dev/null; then
-        print_error "Registry login succeeded, but the configured account cannot read images."
+    print_ok "Verifying access to $registry_host/$verification_image..."
+    if ! sudo docker manifest inspect "$registry_host/$verification_image" >/dev/null; then
+        print_error "Registry login succeeded, but the configured account cannot read $registry_host/$verification_image."
         exit 1
     fi
 }
@@ -670,9 +672,10 @@ deploy stage3/stacks/zot/docker-compose.yml zot
 
 print_ok "Making sure the zot is ready..."
 sleep 5
-while [ "$(curl -s -o /dev/null -w "%{http_code}" https://hub.aiursoft.cn)" != "200" ] || \
-      [ "$(curl -s -A 'docker/29.1.3' -o /dev/null -w "%{http_code}" https://hub.aiursoft.cn/v2/)" != "401" ]; do
-    print_warn "Waiting for registry (https://hub.aiursoft.cn) to start... ETA: 25s"
+registry_host=$(get_env_value "REGISTRY_HOST")
+while [ "$(curl -s -o /dev/null -w "%{http_code}" "https://$registry_host")" != "200" ] || \
+      [ "$(curl -s -A 'docker/29.1.3' -o /dev/null -w "%{http_code}" "https://$registry_host/v2/")" != "401" ]; do
+    print_warn "Waiting for registry (https://$registry_host) to start... ETA: 25s"
     sleep 1
 done
 
@@ -687,7 +690,7 @@ print_warn "   Starting stage 4: Mission is to deploy business stacks"
 print_warn "=============================================================================="
 sleep 3
 
-login_to_hub
+login_to_hub "$(get_env_value "REGISTRY_HOST")" "$(get_env_value "REGISTRY_VERIFICATION_IMAGE")"
 
 # /swarm-vol/click-house/config_override.xml
 print_ok "Copying ClickHouse config override file..."
