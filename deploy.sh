@@ -91,6 +91,45 @@ else
     print_ok "No .env or .env.prod file found. Proceeding without variable substitution."
 fi
 
+function get_env_value() {
+    local key=$1
+    local line
+
+    if [ -z "$ENV_FILE" ]; then
+        print_error "No environment file found. '$key' is required."
+        exit 1
+    fi
+
+    line=$(grep -m1 -E "^${key}=" "$ENV_FILE" || true)
+    if [ -z "$line" ] || [ -z "${line#*=}" ]; then
+        print_error "'$key' is missing or empty in $ENV_FILE."
+        exit 1
+    fi
+
+    printf '%s' "${line#*=}"
+}
+
+function login_to_hub() {
+    local hub_username
+    local hub_password
+
+    hub_username=$(get_env_value "HUB_USERNAME")
+    hub_password=$(get_env_value "HUB_PASSWORD")
+
+    print_ok "Logging in to hub.aiursoft.cn..."
+    if ! printf '%s' "$hub_password" | sudo docker login hub.aiursoft.cn --username "$hub_username" --password-stdin; then
+        print_error "Failed to log in to hub.aiursoft.cn."
+        exit 1
+    fi
+    unset hub_password
+
+    print_ok "Verifying access to hub.aiursoft.cn..."
+    if ! sudo docker manifest inspect hub.aiursoft.cn/mysql:9.7.0 >/dev/null; then
+        print_error "Registry login succeeded, but the configured account cannot read images."
+        exit 1
+    fi
+}
+
 function install_yq() {
     local download_link="https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64"
     sudo wget -O /usr/bin/yq "$download_link"
@@ -631,7 +670,8 @@ deploy stage3/stacks/zot/docker-compose.yml zot
 
 print_ok "Making sure the zot is ready..."
 sleep 5
-while [ "$(curl -s -o /dev/null -w "%{http_code}" https://hub.aiursoft.cn)" != "200" ]; do
+while [ "$(curl -s -o /dev/null -w "%{http_code}" https://hub.aiursoft.cn)" != "200" ] || \
+      [ "$(curl -s -A 'docker/29.1.3' -o /dev/null -w "%{http_code}" https://hub.aiursoft.cn/v2/)" != "401" ]; do
     print_warn "Waiting for registry (https://hub.aiursoft.cn) to start... ETA: 25s"
     sleep 1
 done
@@ -646,6 +686,8 @@ print_warn "====================================================================
 print_warn "   Starting stage 4: Mission is to deploy business stacks"
 print_warn "=============================================================================="
 sleep 3
+
+login_to_hub
 
 # /swarm-vol/click-house/config_override.xml
 print_ok "Copying ClickHouse config override file..."

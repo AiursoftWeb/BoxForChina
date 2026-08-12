@@ -6,8 +6,12 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
-      - TZ=UTC
-      - FILTER_SERVICES=label=shepherd.autoupdate=true
+      TZ: UTC
+      FILTER_SERVICES: label=shepherd.autoupdate=true
+      WITH_REGISTRY_AUTH: "true"
+      REGISTRY_HOST: hub.aiursoft.cn
+      REGISTRY_USER: "{{HUB_USERNAME}}"
+      REGISTRY_PASSWORD: "{{HUB_PASSWORD}}"
     networks:
       - proxy_app
     stop_grace_period: 60s
