@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  web:
+    image: hub.aiursoft.cn/aiursoft/static:latest
+    volumes:
+      - gitlab-data:/data:ro
+    networks:
+      - proxy_app
+    stop_grace_period: 20s
+    deploy:
+      labels:
+        shepherd.autoupdate: "true"
+      replicas: 1
+      update_config:
+        order: start-first
+        delay: 5s
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128M
+    entrypoint: ["sh", "-c", "/app/static --port 5000 --path /data"]
+
+volumes:
+  gitlab-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /swarm-vol/gitlab-data
+
+networks:
+  proxy_app:
+    external: true
