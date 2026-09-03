@@ -132,6 +132,27 @@ function login_to_hub() {
     fi
 }
 
+function login_to_pubhub() {
+    local username
+    local password
+
+    username=$(get_env_value "PUBHUB_USERNAME")
+    password=$(get_env_value "PUBHUB_PASSWORD")
+
+    print_ok "Logging in to pubhub.aiursoft.com..."
+    if ! printf '%s' "$password" | sudo docker login pubhub.aiursoft.com --username "$username" --password-stdin; then
+        print_error "Failed to log in to pubhub.aiursoft.com."
+        exit 1
+    fi
+    unset password
+
+    print_ok "Verifying access to pubhub.aiursoft.com/registry:3..."
+    if ! sudo docker manifest inspect pubhub.aiursoft.com/registry:3 >/dev/null; then
+        print_error "PubHub login succeeded, but the configured account cannot read pubhub.aiursoft.com/registry:3."
+        exit 1
+    fi
+}
+
 function install_yq() {
     local download_link="https://github.com/mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64"
     sudo wget -O /usr/bin/yq "$download_link"
@@ -581,6 +602,8 @@ print_warn "====================================================================
 print_warn "   Starting stage 0: Mission is to start a simple registry"
 print_warn "=============================================================================="
 sleep 3
+
+login_to_pubhub
 
 sudo docker compose -f ./stage0/registry/docker-compose.yml up -d --pull always --no-recreate --remove-orphans
 
