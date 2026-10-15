@@ -27,8 +27,8 @@ To provide low-latency access to services for users within Mainland China, bypas
 
 ```bash
 # On a fresh Tencent Cloud / Aliyun / Ningbo Node:
-git clone https://gitlab.aiursoft.cn/aiursoft/bash-app.git
-cd bash-app/Boxes/BoxForChina
+git clone https://gitlab.aiursoft.com/aiursoft/boxforchina.git
+cd boxforchina
 sudo bash deploy.sh
 ```
 
