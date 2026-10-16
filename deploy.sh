@@ -554,6 +554,7 @@ print_warn "   Starting stage 1: Mission is to mirror public images to the simpl
 print_warn "=============================================================================="
 sleep 3
 
+login_to_pubhub
 bash ./stage1/mirror.sh
 
 print_warn "=============================================================================="
