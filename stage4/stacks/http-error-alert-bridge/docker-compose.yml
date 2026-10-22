@@ -5,21 +5,7 @@ services:
     image: hub.aiursoft.cn/aiursoft/http_error_alert_center_bridge:latest
     environment:
       - SERVER_NAME=china
-      - >-
-        MONITORED_HOSTS=aiursoft.cn,
-        api.yuefuxuetang.com,
-        call.aiursoft.cn,
-        clickhouse.aiursoft.cn,
-        grafana.aiursoft.cn,
-        hub.aiursoft.cn,
-        musicexam.aiursoft.cn,
-        portal.yuefuxuetang.com,
-        remotely.aiursoft.cn,
-        richerp.aiursoft.cn,
-        test.aiursoft.cn,
-        tracer.aiursoft.cn,
-        wechatexam.aiursoft.cn,
-        www.aiursoft.cn
+      - MONITORED_HOSTS=*
       - CLICKHOUSE_CONNECTION_STRING=Host=clickhouse_clickhouse;Protocol=http;Port=8123;Database=logs;User=default;Password=123456
       - ALERTCENTER_URL=https://alertcenter.aiursoft.com
       - ALERTCENTER_API_KEY={{HTTP_ERROR_ALERTCENTER_API_KEY}}
