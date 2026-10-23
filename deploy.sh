@@ -524,6 +524,7 @@ if [ -f /usr/bin/nvidia-smi ]; then
     "max-file": "3"
   },
   "userland-proxy": false,
+  "bip": "172.19.0.1/16",
   "default-ulimits": {
     "nofile": {
       "Name": "nofile",
@@ -562,6 +563,7 @@ else
     "max-file": "3"
   },
   "userland-proxy": false,
+  "bip": "172.19.0.1/16",
   "default-ulimits": {
     "nofile": {
       "Name": "nofile",
