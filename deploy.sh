@@ -160,6 +160,19 @@ function install_yq() {
 }
 
 function init_docker_swarm() {
+    # Native IPv6 publishing preserves client IPs with userland-proxy disabled.
+    # Docker allocates the internal IPv6 subnet; no public subnet is required.
+    if ! sudo -n docker network inspect docker_gwbridge >/dev/null 2>&1; then
+        sudo -n docker network create --driver bridge --ipv6 \
+            --opt com.docker.network.bridge.name=docker_gwbridge \
+            --opt com.docker.network.bridge.enable_icc=false \
+            --opt com.docker.network.bridge.enable_ip_masquerade=true \
+            docker_gwbridge
+    fi
+    if [ "$(sudo -n docker network inspect --format '{{.EnableIPv6}}' docker_gwbridge)" != "true" ]; then
+        print_error "Existing docker_gwbridge is IPv4-only. Migrate it during planned maintenance before initializing Swarm."
+        return 1
+    fi
     sudo docker swarm init --advertise-addr $(hostname -I | awk '{print $1}')
 }
 
