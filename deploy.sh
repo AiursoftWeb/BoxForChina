@@ -159,33 +159,17 @@ function install_yq() {
     sudo chmod +x /usr/bin/yq
 }
 
-function init_docker_swarm() {
-    # Native IPv6 publishing preserves client IPs with userland-proxy disabled.
-    # Docker allocates the internal IPv6 subnet; no public subnet is required.
-    if ! sudo -n docker network inspect docker_gwbridge >/dev/null 2>&1; then
-        sudo -n docker network create --driver bridge --ipv6 \
-            --opt com.docker.network.bridge.name=docker_gwbridge \
-            --opt com.docker.network.bridge.enable_icc=false \
-            --opt com.docker.network.bridge.enable_ip_masquerade=true \
-            docker_gwbridge
-    fi
-    if [ "$(sudo -n docker network inspect --format '{{.EnableIPv6}}' docker_gwbridge)" != "true" ]; then
-        print_error "Existing docker_gwbridge is IPv4-only. Migrate it during planned maintenance before initializing Swarm."
-        return 1
-    fi
-    sudo docker swarm init --advertise-addr $(hostname -I | awk '{print $1}')
-}
-
 function ensure_docker_ready() {
-    # Init docker swarm if not initialized
-    sudo docker info | grep -q "Swarm: active" || init_docker_swarm
+    if [ "$(sudo docker info --format '{{.Swarm.LocalNodeState}}')" != "inactive" ]; then
+        sudo python3 "$(dirname "${BASH_SOURCE[0]}")/ensure-docker-network.py"
+    fi
 
     # Add user to docker group
     sudo usermod -aG docker $USER
 }
 
 function ensure_packages_needed_ready() {
-    sudo DEBIAN_FRONTEND=noninteractive apt install -y wsdd valgrind curl wget jq apt-transport-https ca-certificates docker-compose-v2 docker.io qemu-user-binfmt docker-buildx
+    sudo DEBIAN_FRONTEND=noninteractive apt install -y python3 wsdd valgrind curl wget jq apt-transport-https ca-certificates docker-compose-v2 docker.io qemu-user-binfmt docker-buildx
 
     # Install yq. (Run install_yq only if the /usr/bin/yq does not exist.)
     [ -f /usr/bin/yq ] || install_yq
@@ -488,7 +472,7 @@ old_hash_containerd=$(sha256sum /etc/containerd/config.toml | awk '{print $1}')
 sudo sed -i 's|^#\?root = .*|root = "/swarm-vol/containerd-data"|' /etc/containerd/config.toml
 
 if [ -f /etc/docker/daemon.json ]; then
-    old_hash_daemon=$(sha256sum /etc/docker/daemon.json | awk '{print $1}')
+    old_hash_daemon=$(sudo jq -cS . /etc/docker/daemon.json | sha256sum | awk '{print $1}')
 else
     old_hash_daemon=""
 fi
@@ -498,6 +482,16 @@ if [ -f /etc/nvidia-container-runtime/config.toml ]; then
 else
     old_hash_nvidia=""
 fi
+
+docker_bridge_setting=$(sudo python3 - <<'PYTHON'
+import json
+from pathlib import Path
+config = Path('/etc/docker/daemon.json')
+bip = json.loads(config.read_text()).get('bip') if config.exists() else None
+if bip:
+    print('"bip": ' + json.dumps(bip) + ',')
+PYTHON
+)
 
 if [ -f /usr/bin/nvidia-smi ]; then
   print_ok "Nvidia GPU detected. Configuring for Nvidia..."
@@ -524,7 +518,7 @@ if [ -f /usr/bin/nvidia-smi ]; then
     "max-file": "3"
   },
   "userland-proxy": false,
-  "bip": "172.19.0.1/16",
+  $docker_bridge_setting
   "default-ulimits": {
     "nofile": {
       "Name": "nofile",
@@ -563,7 +557,7 @@ else
     "max-file": "3"
   },
   "userland-proxy": false,
-  "bip": "172.19.0.1/16",
+  $docker_bridge_setting
   "default-ulimits": {
     "nofile": {
       "Name": "nofile",
@@ -575,7 +569,7 @@ else
 EOF
 fi
 
-new_hash_daemon=$(sha256sum /etc/docker/daemon.json | awk '{print $1}')
+new_hash_daemon=$(sudo jq -cS . /etc/docker/daemon.json | sha256sum | awk '{print $1}')
 if [ -f /etc/nvidia-container-runtime/config.toml ]; then
     new_hash_nvidia=$(sha256sum /etc/nvidia-container-runtime/config.toml | awk '{print $1}')
 else
@@ -597,6 +591,8 @@ fi
 #=============================
 # Docker Daemon Configuration End
 #=============================
+
+sudo python3 "$(dirname "${BASH_SOURCE[0]}")/ensure-docker-network.py"
 
 print_warn "=============================================================================="
 print_warn "   Starting stage 0: Mission is to start a simple registry"
