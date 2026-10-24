@@ -30,6 +30,10 @@ services:
       - OpenAI__CompletionApiUrl=https://ollama.aiursoft.com/api/chat
       - OpenAI__Model=aiursoft-instruct:latest
       - OpenAI__Token={{OLLAMA_GATEWAY_API_KEY}}
+      - GlobalSettings__EnableEmbeddingBasedSearch=true
+      - GlobalSettings__EmbeddingOllamaInstance=https://ollama.aiursoft.com
+      - GlobalSettings__EmbeddingModel=bge-m3:latest
+      - GlobalSettings__EmbeddingApiToken={{OLLAMA_GATEWAY_API_KEY}}
       - Logging__Clickhouse__Enabled=true
       - Logging__Clickhouse__ConnectionString=Host=clickhouse;User=default;Password=123456;Database=AspNetCoreLogs
       - Logging__Clickhouse__TableName=WeChatExamLogs
