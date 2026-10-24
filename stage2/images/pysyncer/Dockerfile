@@ -13,7 +13,7 @@ RUN sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sourc
         curl ca-certificates tzdata build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir clickhouse-connect==0.8.18
+RUN pip install --no-cache-dir --index-url https://mirrors.aliyun.com/pypi/simple/ clickhouse-connect==0.8.18
 
 WORKDIR /app
 COPY main.py /app/main.py
