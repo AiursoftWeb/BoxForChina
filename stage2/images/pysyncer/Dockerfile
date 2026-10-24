@@ -8,7 +8,8 @@ ENV PYTHONUNBUFFERED=1 \
     PIP_BREAK_SYSTEM_PACKAGES=1
 
 # 必要包：clickhouse-connect 做写入；tzdata 提供时区
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN sed -i 's|http://deb.debian.org|https://mirrors.aliyun.com|g' /etc/apt/sources.list.d/debian.sources \
+    && apt-get update && apt-get install -y --no-install-recommends \
         curl ca-certificates tzdata build-essential \
     && rm -rf /var/lib/apt/lists/*
 
