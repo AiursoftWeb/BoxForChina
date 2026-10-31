@@ -15,8 +15,6 @@
 		level info
 	}
 	servers :443 {
-		import cloudflare_trust
-
 		listener_wrappers {
 			http_redirect
 			tls
