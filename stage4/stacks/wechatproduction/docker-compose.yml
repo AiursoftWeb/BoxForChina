@@ -23,9 +23,12 @@ services:
       - AppSettings__Wechat__VirtualPayment__Enabled=false
       - AppSettings__Wechat__VirtualPayment__IosRefundAdviceEnabled=false
       - AppSettings__Wechat__VirtualPayment__Environment=0
+      - AppSettings__Wechat__VirtualPayment__GoodsSync__Enabled=true
+      - AppSettings__Wechat__VirtualPayment__GoodsSync__PictureUrl=https://portal.yuefuxuetang.com/download/VirtualPayment/goods-logo-200.png
       - AppSettings__Wechat__VirtualPayment__OfferId=1450715685
       - AppSettings__Wechat__VirtualPayment__CallbackToken={{WCEXAM_VIRTUAL_CALLBACK_TOKEN_PROD}}
       - AppSettings__Wechat__VirtualPayment__CallbackEncodingAesKey={{WCEXAM_VIRTUAL_CALLBACK_AES_PROD}}
+      # Compatibility mappings are used only when automatic goods sync is disabled.
       - AppSettings__Wechat__VirtualPayment__Products__c8a34083-a233-44ed-9ab1-31c8d2209720__ProductId=course_cn_history
       - AppSettings__Wechat__VirtualPayment__Products__c8a34083-a233-44ed-9ab1-31c8d2209720__PriceInFen=19800
       - AppSettings__Wechat__VirtualPayment__Products__b9654d7f-3fc1-46ba-a37e-b0505faec1d0__ProductId=exam_composite
