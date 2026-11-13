@@ -20,7 +20,7 @@ services:
       - AppSettings__Wechat__AppId={{WCEXAM_APP_ID_PROD}}
       - AppSettings__Wechat__AppSecret={{WCEXAM_APP_SECRET_PROD}}
       - AppSettings__Wechat__VirtualPayment__AppKey={{WCEXAM_VIRTUAL_APP_KEY_PROD}}
-      - AppSettings__Wechat__VirtualPayment__Enabled=false
+      - AppSettings__Wechat__VirtualPayment__Enabled=true
       - AppSettings__Wechat__VirtualPayment__IosRefundAdviceEnabled=false
       - AppSettings__Wechat__VirtualPayment__Environment=0
       - AppSettings__Wechat__VirtualPayment__GoodsSync__Enabled=true
