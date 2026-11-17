@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   app:
-    image: hub.aiursoft.cn/aiursoft/http_error_alert_center_bridge:latest
+    image: hub.aiursoft.cn/aiursoft/logwatchdog:latest
     environment:
       - SERVER_NAME=china
       - MONITORED_HOSTS=*
