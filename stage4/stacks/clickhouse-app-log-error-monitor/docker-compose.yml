@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   app:
-    image: hub.aiursoft.cn/aiursoft/clickhouse_app_log_error_monitor:latest
+    image: hub.aiursoft.cn/aiursoft/dotnetwatchdog:latest
     environment:
       - NODE_NAME=china
       - CLICKHOUSE_PUBLIC_URL=https://clickhouse.aiursoft.cn
